@@ -3,6 +3,7 @@ let MAIN
 let MODAL_POST
 let BTN_SHOW_POST
 let BTN_CANCEL_POST
+let deferresPrompt
 
 // Funciones
 const showPostModal = () => {
@@ -16,6 +17,12 @@ const closePostModal = () => {
     MAIN.style.display = 'block'
     MODAL_POST.style.transform = 'translateY(100vh)'
 }
+
+// Anula la ventana de instalar
+window.addEventListener('beforeInstallprompt', (e) => {
+    e.preventDefault()
+    deferresPrompt = e
+})
 
 // Cuando se cargue todo nuestro DOM
 window.addEventListener('load', async () => {
@@ -32,4 +39,15 @@ window.addEventListener('load', async () => {
             console.log('Service worker registrado')
         }
     }
+
+    const bannerInstall = document.querySelector('#banner-install')
+    bannerInstall.addEventListener(('click', async () => {
+        if (deferresPrompt) {
+            deferresPrompt.prompt()
+            const reponse = await deferresPrompt.userChoice
+            if (response === 'dissmissed') {
+                console.error('El usuario canceló la instalación')
+            }
+        }
+    }))
 })
