@@ -3,7 +3,7 @@ let MAIN
 let MODAL_POST
 let BTN_SHOW_POST
 let BTN_CANCEL_POST
-let deferresPrompt
+let deferredPrompt
 
 // Funciones
 const showPostModal = () => {
@@ -21,7 +21,7 @@ const closePostModal = () => {
 // Anula la ventana de instalar
 window.addEventListener('beforeInstallprompt', (e) => {
     e.preventDefault()
-    deferresPrompt = e
+    deferredPrompt = e
 })
 
 // Cuando se cargue todo nuestro DOM
@@ -33,21 +33,27 @@ window.addEventListener('load', async () => {
     BTN_CANCEL_POST = document.querySelector('#btn-post-cancel')
     BTN_CANCEL_POST.addEventListener('click', closePostModal)
 
+    await Notification.requestPermission()
+
     if ('serviceWorker' in navigator) {
-        const response = await navigator.serviceWorker.register('sw.js')
+        const response = await navigator.serviceWorker.register('sw.js',)
         if (response) {
-            console.log('Service worker registrado')
+            const ready = await navigator.serviceWorker.ready
+            ready.showNotification('Hola curspo-pwa', {
+                body: 'Este será un mensaje maás largo',
+                vibrate: [200, 100, 200, 100, 200, 100, 200]
+            })
         }
     }
 
     const bannerInstall = document.querySelector('#banner-install')
-    bannerInstall.addEventListener(('click', async () => {
-        if (deferresPrompt) {
-            deferresPrompt.prompt()
-            const reponse = await deferresPrompt.userChoice
-            if (response === 'dissmissed') {
+    bannerInstall.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt()
+            const response = await deferredPrompt.userChoice
+            if (response.outcome === 'dissmissed') {
                 console.error('El usuario canceló la instalación')
             }
         }
-    }))
+    })
 })
